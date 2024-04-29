@@ -1,7 +1,5 @@
-import java.util.Comparator;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.TreeSet;
 
 public abstract class ResultsOfSportsCompetition {
     protected final String sportType;
@@ -14,10 +12,6 @@ public abstract class ResultsOfSportsCompetition {
         this.resultB = resultB;
     }
 
-    public String getSportType() {
-        return sportType;
-    }
-
     public Integer getResultA() {
         return resultA;
     }
@@ -26,13 +20,24 @@ public abstract class ResultsOfSportsCompetition {
         return resultB;
     }
 
-    // Метод для визначення переможця
+    // Abstract method to determine the winner of the game
     public abstract Character getWinnerOfGame();
 
     @Override
     public String toString() {
         String winner = getWinnerOfGame().toString();
-        return sportType + "\n" + "Team A " + resultA + " : " + resultB + " Team B" + "\n" + winner + " — is winner!";
+        return sportType + "\n" + "Team A " + resultA + " : " + resultB + " Team B" + "\n" + winner + " — is the winner!";
+    }
+
+    // Static nested comparator class for sorting ResultsOfSportsCompetition instances by total goals
+    static class TotalGoalsComparator implements Comparator<ResultsOfSportsCompetition> {
+        @Override
+        public int compare(ResultsOfSportsCompetition r1, ResultsOfSportsCompetition r2) {
+            // Compare by total goals scored (resultA + resultB)
+            int totalGoals1 = r1.getResultA() + r1.getResultB();
+            int totalGoals2 = r2.getResultA() + r2.getResultB();
+            return Integer.compare(totalGoals1, totalGoals2);
+        }
     }
 }
 
@@ -48,12 +53,8 @@ class FootballWinner extends ResultsOfSportsCompetition {
         } else if (getResultA() < getResultB()) {
             return 'B';
         } else {
-            return '-'; // Нічия
+            return '-'; // Draw
         }
-    }
-
-    public static class FootballWinnerComparator implements Comparator{
-
     }
 }
 
@@ -69,52 +70,46 @@ class TennisWinner extends ResultsOfSportsCompetition {
         } else if (getResultA() < getResultB()) {
             return 'B';
         } else {
-            return '-'; // Нічия
+            return '-'; // Draw
         }
     }
 }
 
 class Main {
     public static void main(String[] args) {
-        FootballWinner footballWinner1 = new FootballWinner(5, 6);
-        FootballWinner footballWinner2 = new FootballWinner(6, 6);
-        FootballWinner footballWinner3 = new FootballWinner(3, 1);
+        // Football matches
+        FootballWinner[] footballMatches = {
+                new FootballWinner(3, 1111),
+                new FootballWinner(2, 122),
+                new FootballWinner(1, 12)
+        };
 
-        FootballWinner[] footballWinners = { footballWinner1, footballWinner2, footballWinner3 };
+        // Sorting footballMatches array by total goals using TotalGoalsComparator
+        Arrays.sort(footballMatches, new ResultsOfSportsCompetition.TotalGoalsComparator());
 
-        // Static nested class comparator
-        Arrays.sort(footballWinners, new FootballWinner.FootballWinnerComparator());
-
-        System.out.println("Sorted by FootballWinnerComparator:");
-        for (FootballWinner winner : footballWinners) {
-            System.out.println(winner);
+        // Printing the sorted footballMatches array
+        for (FootballWinner match : footballMatches) {
+            System.out.println(match);
         }
 
-        System.out.println("-------------------------------");
+        // Tennis matches
+        TennisWinner[] tennisMatches = {
+                new TennisWinner(3, 1111),
+                new TennisWinner(12, 122),
+                new TennisWinner(1, 12)
+        };
 
-        // Anonymous class comparator
-        TreeSet<FootballWinner> footballWinnerTreeSet = new TreeSet<>(new Comparator<FootballWinner>() {
+        // Sorting tennisMatches array by resultA using an anonymous Comparator
+        Arrays.sort(tennisMatches, new Comparator<TennisWinner>() {
             @Override
-            public int compare(FootballWinner fw1, FootballWinner fw2) {
-                return fw1.getResultA().compareTo(fw2.getResultA());
+            public int compare(TennisWinner tw1, TennisWinner tw2) {
+                return Integer.compare(tw1.getResultA(), tw2.getResultA());
             }
         });
 
-        footballWinnerTreeSet.add(footballWinner1);
-        footballWinnerTreeSet.add(footballWinner2);
-        footballWinnerTreeSet.add(footballWinner3);
-
-        System.out.println("Sorted by TreeSet with anonymous class comparator:");
-        for (FootballWinner winner : footballWinnerTreeSet) {
-            System.out.println(winner);
+        // Printing the sorted tennisMatches array
+        for (TennisWinner match : tennisMatches) {
+            System.out.println(match);
         }
-    }
-}
-
-// Static nested class comparator
-class FootballWinnerComparator implements Comparator<FootballWinner> {
-    @Override
-    public int compare(FootballWinner fw1, FootballWinner fw2) {
-        return fw1.getResultB().compareTo(fw2.getResultB());
     }
 }
